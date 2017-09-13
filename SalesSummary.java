@@ -1,3 +1,6 @@
+package jp.alhinc.takahashi_keisuke.calculate_sales;
+
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,7 +27,6 @@ public class SalesSummary {
 		HashMap<String, Long> commodity2 = new HashMap<String, Long>();
 		BufferedReader br = null;
 		BufferedWriter bw = null;
-		String sep = java.io.File.separator;
 
 		if(args.length != 1){
 			System.out.println("予期せぬエラーが発生しました");
@@ -48,7 +50,7 @@ public class SalesSummary {
 				String[] buf2 = buf.split(",", 0);
 
 				//支店コードが数字3文字以外、または要素数が2つ以外ならエラーを出力する
-				boolean b = Pattern.matches("^"+sep+"d{3}$", buf2[0]);
+				boolean b = Pattern.matches("^\\d{3}$", buf2[0]);
 				if(b == false || buf2.length != 2){
 					System.out.println("支店定義ファイルのフォーマットが不正です");
 					return;
@@ -126,7 +128,7 @@ public class SalesSummary {
 		ArrayList<String> fn12 = new ArrayList<String>();
 
 		for (int i = 0; i < files.length; i++) {
-			boolean b = Pattern.matches("^"+sep+"d{8}"+".rcd$",files[i].getName());
+			boolean b = Pattern.matches("^\\d{8}"+".rcd$",files[i].getName());
 			if (b == true && files[i].isFile()) {
 				fn12.add((files[i].getName()));
 			}
