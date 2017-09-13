@@ -50,7 +50,7 @@ public class SalesSummary {
 				//支店コードが数字3文字以外、または要素数が2つ以外ならエラーを出力する
 				boolean b = Pattern.matches("^"+sep+"d{3}$", buf2[0]);
 				if(b == false || buf2.length != 2){
-					System.out.println("エラー：支店定義ファイルのフォーマットが不正です");
+					System.out.println("支店定義ファイルのフォーマットが不正です");
 					return;
 				}
 
@@ -61,15 +61,18 @@ public class SalesSummary {
 			}
 
 		} catch (FileNotFoundException e) {
-			System.out.println(e);
+			System.out.println("予期せぬエラーが発生しました");
+			return;
 		} catch (IOException e) {
-			System.out.println(e);
+			System.out.println("予期せぬエラーが発生しました");
+			return;
 		} finally {
 			if (br != null)
 				try {
                     br.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                	System.out.println("予期せぬエラーが発生しました");
+        			return;
                 }
 		}
 
@@ -92,7 +95,7 @@ public class SalesSummary {
 				//商品コードが英数字8桁以外、または要素数が2つ以外ならエラーを出力する
 				boolean b = Pattern.matches("^"+"[a-zA-Z0-9]"+"{8}$", buf2[0]);
 				if(b == false || buf2.length != 2){
-					System.out.println("エラー：商品定義ファイルのフォーマットが不正です");
+					System.out.println("商品定義ファイルのフォーマットが不正です");
 					return;
 				}
 
@@ -103,15 +106,18 @@ public class SalesSummary {
 			}
 
 		} catch (FileNotFoundException e) {
-			System.out.println(e);
+			System.out.println("予期せぬエラーが発生しました");
+			return;
 		} catch (IOException e) {
-			System.out.println(e);
+			System.out.println("予期せぬエラーが発生しました");
+			return;
 		} finally {
 			if (br != null)
 				try {
                     br.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                	System.out.println("予期せぬエラーが発生しました");
+        			return;
                 }
 		}
 
@@ -135,7 +141,7 @@ public class SalesSummary {
 			f = fn12.get(i).substring(0, 8);
 			int num2 = Integer.parseInt(f);
 			if(num2 != num1+1){
-				System.out.println("エラー：売上ファイル名が連番になっていません");
+				System.out.println("売上ファイル名が連番になっていません");
 				return;
 			}
 			num1++;
@@ -159,7 +165,7 @@ public class SalesSummary {
 
 					//rcdファイルの中身の行数が3行でなければエラーを出力する
 					if(count >= 4 || buf == null && count <= 2){
-						System.out.println("エラー："+fn12.get(i)+"のフォーマットが不正です");
+						System.out.println(fn12.get(i)+"のフォーマットが不正です");
 						return;
 					}
 				}
@@ -167,7 +173,7 @@ public class SalesSummary {
 				//rcdファイル内の金額に文字列や記号が入った場合にエラーを出力する
 				boolean b = Pattern.matches("^[0-9]*$",rcdlist.get(2));
 				if(b == false) {
-					System.out.println("エラー：数字以外の文字が金額の値に使用されています");
+					System.out.println(fn12.get(i)+"のフォーマットが不正です");
 					return;
 				}
 
@@ -181,7 +187,7 @@ public class SalesSummary {
 
 					//rcdファイル内の支店コードがbranch.lst内に存在しなければエラーを出力する
 					if(keycount1 == branch2.size()){
-						System.out.println("エラー："+fn12.get(i)+"の支店コードが不正です");
+						System.out.println(fn12.get(i)+"の支店コードが不正です");
 						return;
 					}
 				}
@@ -196,7 +202,7 @@ public class SalesSummary {
 
 					//rcdファイル内の商品コードがcommodity.lst内に存在しなければエラーを出力する
 					if(keycount2 == commodity2.size()){
-						System.out.println("エラー："+fn12.get(i)+"の商品コードが不正です");
+						System.out.println(fn12.get(i)+"の商品コードが不正です");
 						return;
 					}
 				}
@@ -205,22 +211,25 @@ public class SalesSummary {
 				branch2.put(rcdlist.get(0), branch2.get(rcdlist.get(0)) + Long.parseLong(rcdlist.get(2)));
 				commodity2.put(rcdlist.get(1), commodity2.get(rcdlist.get(1)) + Long.parseLong(rcdlist.get(2)));
 
-				long g=10000000000l; //整数リテラルはint型なので末尾にlを付与してlong型に変換
+				long g=10000000000L; //整数リテラルはint型なので末尾にlを付与してlong型に変換
 				if(branch2.get(rcdlist.get(0))>=g || commodity2.get(rcdlist.get(1))>=g) {
-					System.out.println("エラー：合計金額が10桁を超えました");
+					System.out.println("合計金額が10桁を超えました");
 					return;
 				}
 
 			} catch (FileNotFoundException e) {
-				System.out.println(e);
+				System.out.println("予期せぬエラーが発生しました");
+				return;
 			} catch (IOException e) {
-				System.out.println(e);
+				System.out.println("予期せぬエラーが発生しました");
+				return;
 			} finally {
 				if (br != null)
 					try {
 	                    br.close();
 	                } catch (IOException e) {
-	                    e.printStackTrace();
+	                	System.out.println("予期せぬエラーが発生しました");
+	        			return;
 	                }
 			}
 		}
@@ -254,15 +263,18 @@ public class SalesSummary {
 			}
 
 		} catch (FileNotFoundException e) {
-			System.out.println(e);
+			System.out.println("予期せぬエラーが発生しました");
+			return;
 		} catch (IOException e) {
-			System.out.println(e);
+			System.out.println("予期せぬエラーが発生しました");
+			return;
 		} finally {
 			if (br != null)
 				try {
                     bw.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                	System.out.println("予期せぬエラーが発生しました");
+        			return;
                 }
 		}
 
@@ -277,15 +289,18 @@ public class SalesSummary {
 			}
 
 		} catch (FileNotFoundException e) {
-			System.out.println(e);
-		}catch (IOException e) {
-			System.out.println(e);
+			System.out.println("予期せぬエラーが発生しました");
+			return;
+		} catch (IOException e) {
+			System.out.println("予期せぬエラーが発生しました");
+			return;
 		} finally {
 			if (br != null)
 				try {
                     bw.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                	System.out.println("予期せぬエラーが発生しました");
+        			return;
                 }
 		}
 	}
