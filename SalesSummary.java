@@ -54,7 +54,7 @@ public class SalesSummary {
 					return;
 				}
 
-				//ここまでの間に問題がなければマップに格納していく
+				//ここまでの間に問題がなければマップに格納する
 				branch1.put(buf2[0], buf2[1]);
 				branch2.put(buf2[0], gold);
 				buf = br.readLine();
