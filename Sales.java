@@ -1,6 +1,5 @@
 package jp.alhinc.takahashi_keisuke.calculate_sales;
 
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -15,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
 
 public class Sales {
 
@@ -26,45 +24,42 @@ public class Sales {
 		HashMap<String, String> commodity1 = new HashMap<String, String>();
 		HashMap<String, Long> commodity2 = new HashMap<String, Long>();
 		BufferedReader br = null;
-		BufferedWriter bw = null;
 
-		if(args.length != 1){
+		if (args.length != 1) {
 			System.out.println("予期せぬエラーが発生しました");
 			return;
 		}
 
-		reader(args[0], "branch.lst", br, branch1, branch2);
-		reader(args[0], "commodity.lst", br, commodity1, commodity2);
+		reader(args[0], "branch.lst", "^\\d{3}$", branch1, branch2);
+		reader(args[0], "commodity.lst", "^[a-zA-Z0-9]{8}$", commodity1, commodity2);
 
-		//指定フォルダ内にあるアイテムの名前が[数字8桁.rcd]でファイルなら名前を保持する
+		// 指定フォルダ内にあるアイテムの名前が[数字8桁.rcd]でファイルなら名前を保持する
 		File[] files = new File(args[0]).listFiles();
 		ArrayList<String> fn12 = new ArrayList<String>();
 
 		for (int i = 0; i < files.length; i++) {
-			boolean b = Pattern.matches("^\\d{8}"+".rcd$",files[i].getName());
-			if (b == true && files[i].isFile()) {
+			if (files[i].getName().matches("^\\d{8}.rcd$") && files[i].isFile()) {
 				fn12.add((files[i].getName()));
 			}
 		}
 
-		if(fn12.size() > 0 ){
-			//連番チェックを行う
-			//先頭の数字を格納しておき、2つ目からループを開始する
+
+		if (fn12.size() > 0) {
+			// 連番チェックを行う
+			// 先頭の数字を格納しておき、2つ目からループを開始する
 			String f = fn12.get(0).substring(0, 8);
 			int num1 = Integer.parseInt(f);
 
-			for(int i = 1; i < fn12.size(); i++) {
+			for (int i = 1; i < fn12.size(); i++) {
 				f = fn12.get(i).substring(0, 8);
 				int num2 = Integer.parseInt(f);
-				if(num2 != num1+1){
+				if (num2 != num1 + 1) {
 					System.out.println("売上ファイル名が連番になっていません");
 					return;
 				}
 				num1++;
 			}
 		}
-
-
 
 		// 8文字のrcdファイルの数だけループして、金額データを支店商品別のmapに格納する
 		for (int i = 0; i < fn12.size(); i++) {
@@ -82,46 +77,45 @@ public class Sales {
 					buf = br.readLine();
 					count++;
 
-					//rcdファイルの中身の行数が3行でなければエラーを出力する
-					if(count >= 4 || buf == null && count <= 2){
-						System.out.println(fn12.get(i)+"のフォーマットが不正です");
+					// rcdファイルの中身の行数が3行でなければエラーを出力する
+					if (count >= 4 || buf == null && count <= 2) {
+						System.out.println(fn12.get(i) + "のフォーマットが不正です");
 						return;
 					}
 				}
 
-				//rcdファイル内の金額に文字列や記号が入った場合にエラーを出力する
-				boolean b = Pattern.matches("^[0-9]*$",rcdlist.get(2));
-				if(b == false) {
+				// rcdファイル内の金額に文字列や記号が入った場合にエラーを出力する
+				if (!rcdlist.get(2).matches("^[0-9]*$")) {
 					System.out.println("予期せぬエラーが発生しました");
 					return;
 				}
 
-				//rcdファイル内の支店コードがbranch.lst内に存在すればループを抜ける
+				// rcdファイル内の支店コードがbranch.lst内に存在すればループを抜ける
 				int keycount1 = 0;
-				for(String Key : branch2.keySet()) {
-					if(Key.equals(rcdlist.get(0))){
+				for (String Key : branch2.keySet()) {
+					if (Key.equals(rcdlist.get(0))) {
 						break;
 					}
 					keycount1++;
 
-					//rcdファイル内の支店コードがbranch.lst内に存在しなければエラーを出力する
-					if(keycount1 == branch2.size()){
-						System.out.println(fn12.get(i)+"の支店コードが不正です");
+					// rcdファイル内の支店コードがbranch.lst内に存在しなければエラーを出力する
+					if (keycount1 == branch2.size()) {
+						System.out.println(fn12.get(i) + "の支店コードが不正です");
 						return;
 					}
 				}
 
-				//rcdファイル内の商品コードがcommodity.lst内に存在すればループを抜ける
+				// rcdファイル内の商品コードがcommodity.lst内に存在すればループを抜ける
 				int keycount2 = 0;
-				for(String Key : commodity2.keySet()) {
-					if(Key.equals(rcdlist.get(1))){
+				for (String Key : commodity2.keySet()) {
+					if (Key.equals(rcdlist.get(1))) {
 						break;
 					}
 					keycount2++;
 
-					//rcdファイル内の商品コードがcommodity.lst内に存在しなければエラーを出力する
-					if(keycount2 == commodity2.size()){
-						System.out.println(fn12.get(i)+"の商品コードが不正です");
+					// rcdファイル内の商品コードがcommodity.lst内に存在しなければエラーを出力する
+					if (keycount2 == commodity2.size()) {
+						System.out.println(fn12.get(i) + "の商品コードが不正です");
 						return;
 					}
 				}
@@ -130,8 +124,8 @@ public class Sales {
 				branch2.put(rcdlist.get(0), branch2.get(rcdlist.get(0)) + Long.parseLong(rcdlist.get(2)));
 				commodity2.put(rcdlist.get(1), commodity2.get(rcdlist.get(1)) + Long.parseLong(rcdlist.get(2)));
 
-				long g=10000000000L; //整数リテラルはint型なので末尾にlを付与してlong型に変換
-				if(branch2.get(rcdlist.get(0))>=g || commodity2.get(rcdlist.get(1))>=g) {
+				long g = 10000000000L; // 整数リテラルはint型なので末尾にlを付与してlong型に変換
+				if (branch2.get(rcdlist.get(0)) >= g || commodity2.get(rcdlist.get(1)) >= g) {
 					System.out.println("合計金額が10桁を超えました");
 					return;
 				}
@@ -145,113 +139,105 @@ public class Sales {
 			} finally {
 				if (br != null)
 					try {
-	                    br.close();
-	                } catch (IOException e) {
-	                	System.out.println("予期せぬエラーが発生しました");
-	        			return;
-	                }
+						br.close();
+					} catch (IOException e) {
+						System.out.println("予期せぬエラーが発生しました");
+						return;
+					}
 			}
 		}
-		writer(args[0], "branch.out", bw, branch1, branch2);
-		writer(args[0], "commodity.out", bw, commodity1, commodity2);
+		writer(args[0], "branch.out", branch1, branch2);
+		writer(args[0], "commodity.out", commodity1, commodity2);
 	}
 
+	public static boolean reader(String args, String name, String reg, HashMap<String, String> map1,
+			HashMap<String, Long> map2) {
 
-	public static void reader(String args, String name, BufferedReader br, HashMap<String, String> map1, HashMap<String, Long> map2){
+		BufferedReader br = null;
 
 		try {
 
 			File file = new File(args, name);
 
-			if(file.exists() == false){
+			if (file.exists() == false) {
 				System.out.println("支店定義ファイルが存在しません");
-				return;
+				return false;
 			}
 
 			br = new BufferedReader(new FileReader(file));
 			String buf = br.readLine();
-			long gold  = 0;
+			long gold = 0;
 
 			while (buf != null) {
 				String[] buf2 = buf.split(",", 0);
 
-				if(name == "branch.lst"){
-				//支店コードが数字3文字以外、または要素数が2つ以外ならエラーを出力する
-				boolean b = Pattern.matches("^\\d{3}$", buf2[0]);
-					if(b == false || buf2.length != 2){
+					//各コードのファーマットが不正、または要素数が2つ以外ならエラーを出力する
+					if (!buf2[0].matches(reg) || buf2.length != 2) {
 						System.out.println("支店定義ファイルのフォーマットが不正です");
-						br.close();
-						return;
+						return false;
 					}
-				} else if (name == "commodity.lst") {
-					// 商品コードが英数字8桁以外、または要素数が2つ以外ならエラーを出力する
-					boolean b = Pattern.matches("^" + "[a-zA-Z0-9]" + "{8}$", buf2[0]);
-					if (b == false || buf2.length != 2) {
-						System.out.println("商品定義ファイルのフォーマットが不正です");
-						br.close();
-						return;
-					}
-				}
 
-				//ここまでの間に問題がなければマップに格納する
+				// ここまでの間に問題がなければマップに格納する
 				map1.put(buf2[0], buf2[1]);
 				map2.put(buf2[0], gold);
 				buf = br.readLine();
 			}
-			br.close();
 
 		} catch (FileNotFoundException e) {
 			System.out.println("予期せぬエラーが発生しました");
-			return;
+			return false;
 		} catch (IOException e) {
 			System.out.println("予期せぬエラーが発生しました");
-			return;
+			return false;
 		} finally {
 			if (br != null)
 				try {
-                    br.close();
-                } catch (IOException e) {
-                	System.out.println("予期せぬエラーが発生しました");
-        			return;
-                }
+					br.close();
+				} catch (IOException e) {
+					System.out.println("予期せぬエラーが発生しました");
+					return false;
+				}
 		}
+		return true;
 	}
 
-	public static void writer(String args, String name, BufferedWriter bw, HashMap<String, String> map1, HashMap<String, Long> map2){
-		//金額を降順にする
-		List<Map.Entry<String,Long>> entries = new ArrayList<Map.Entry<String,Long>>(map2.entrySet());
-		Collections.sort(entries, new Comparator<Map.Entry<String,Long>>() {
+	public static boolean writer(String args, String name, HashMap<String, String> map1, HashMap<String, Long> map2) {
+		// 金額を降順にする
+		List<Map.Entry<String, Long>> entries = new ArrayList<Map.Entry<String, Long>>(map2.entrySet());
+		Collections.sort(entries, new Comparator<Map.Entry<String, Long>>() {
 
-	            public int compare(Entry<String,Long> entry1, Entry<String,Long> entry2) {
-	                return ((Long)entry2.getValue()).compareTo((Long)entry1.getValue());
-	            }
-	        });
+			public int compare(Entry<String, Long> entry1, Entry<String, Long> entry2) {
+				return ((Long) entry2.getValue()).compareTo((Long) entry1.getValue());
+			}
+		});
 
-		//ファイルの書き出し
+		// ファイルの書き出し
+		BufferedWriter bw = null;
+
 		try {
-			File file = new File(args,name);//args[0], "branch.out"
+			File file = new File(args, name);
 			bw = new BufferedWriter(new FileWriter(file));
 
-			for (Entry<String,Long> s : entries) {
-			bw.write(s.getKey()+","+map1.get(s.getKey())+","+s.getValue());
-			bw.newLine();
+			for (Entry<String, Long> s : entries) {
+				bw.write(s.getKey() + "," + map1.get(s.getKey()) + "," + s.getValue());
+				bw.newLine();
 			}
-			bw.close();
 
 		} catch (FileNotFoundException e) {
 			System.out.println("予期せぬエラーが発生しました");
-			return;
+			return false;
 		} catch (IOException e) {
 			System.out.println("予期せぬエラーが発生しました");
-			return;
+			return false;
 		} finally {
 			if (bw != null)
 				try {
-                    bw.close();
+					bw.close();
 				} catch (IOException e) {
 					System.out.println("予期せぬエラーが発生しました");
-					return;
+					return false;
 				}
 		}
+		return true;
 	}
 }
