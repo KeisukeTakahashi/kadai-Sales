@@ -30,11 +30,11 @@ public class Sales {
 			return;
 		}
 
-		if(!reader(args[0], "branch.lst", "^\\d{3}$", branch1, branch2)) {
+		if(!reader(args[0], "branch.lst", "^\\d{3}$", "支店定義", branch1, branch2)) {
 			return;
 		}
 
-		if(!reader(args[0], "commodity.lst", "^[a-zA-Z0-9]{8}$", commodity1, commodity2)) {
+		if(!reader(args[0], "commodity.lst", "^[a-zA-Z0-9]{8}$", "商品定義", commodity1, commodity2)) {
 			return;
 		}
 
@@ -50,8 +50,8 @@ public class Sales {
 
 
 		if (fn12.size() > 0) {
-			// 連番チェックを行う
-			// 先頭の数字を格納しておき、2つ目からループを開始する
+
+			// 先頭の数字を格納しておき、2つ目からループをさせて連番チェックを行う
 			String f = fn12.get(0).substring(0, 8);
 			int num1 = Integer.parseInt(f);
 
@@ -129,7 +129,8 @@ public class Sales {
 				branch2.put(rcdlist.get(0), branch2.get(rcdlist.get(0)) + Long.parseLong(rcdlist.get(2)));
 				commodity2.put(rcdlist.get(1), commodity2.get(rcdlist.get(1)) + Long.parseLong(rcdlist.get(2)));
 
-				long g = 10000000000L; // 整数リテラルはint型なので末尾にlを付与してlong型に変換
+				// 整数リテラルをlong型に変換
+				long g = 10000000000L;
 				if (branch2.get(rcdlist.get(0)) >= g || commodity2.get(rcdlist.get(1)) >= g) {
 					System.out.println("合計金額が10桁を超えました");
 					return;
@@ -160,7 +161,7 @@ public class Sales {
 		}
 	}
 
-	public static boolean reader(String args, String name, String reg, HashMap<String, String> map1,
+	public static boolean reader(String args, String name, String reg, String defname,  HashMap<String, String> map1,
 			HashMap<String, Long> map2) {
 
 		BufferedReader br = null;
@@ -170,7 +171,7 @@ public class Sales {
 			File file = new File(args, name);
 
 			if (file.exists() == false) {
-				System.out.println("支店定義ファイルが存在しません");
+				System.out.println(defname+"ファイルが存在しません");
 				return false;
 			}
 
@@ -183,7 +184,7 @@ public class Sales {
 
 					//各コードのファーマットが不正、または要素数が2つ以外ならエラーを出力する
 					if (!buf2[0].matches(reg) || buf2.length != 2) {
-						System.out.println("支店定義ファイルのフォーマットが不正です");
+						System.out.println(defname+"ファイルのフォーマットが不正です");
 						return false;
 					}
 
