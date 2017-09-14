@@ -33,95 +33,8 @@ public class Sales {
 			return;
 		}
 
-		try {
-
-			File file = new File(args[0], "branch.lst");
-
-			if(file.exists() == false){
-				System.out.println("支店定義ファイルが存在しません");
-				return;
-			}
-
-			br = new BufferedReader(new FileReader(file));
-			String buf = br.readLine();
-			long gold  = 0;
-
-			while (buf != null) {
-				String[] buf2 = buf.split(",", 0);
-
-				//支店コードが数字3文字以外、または要素数が2つ以外ならエラーを出力する
-				boolean b = Pattern.matches("^\\d{3}$", buf2[0]);
-				if(b == false || buf2.length != 2){
-					System.out.println("支店定義ファイルのフォーマットが不正です");
-					return;
-				}
-
-				//ここまでの間に問題がなければマップに格納する
-				branch1.put(buf2[0], buf2[1]);
-				branch2.put(buf2[0], gold);
-				buf = br.readLine();
-			}
-
-		} catch (FileNotFoundException e) {
-			System.out.println("予期せぬエラーが発生しました");
-			return;
-		} catch (IOException e) {
-			System.out.println("予期せぬエラーが発生しました");
-			return;
-		} finally {
-			if (br != null)
-				try {
-                    br.close();
-                } catch (IOException e) {
-                	System.out.println("予期せぬエラーが発生しました");
-        			return;
-                }
-		}
-
-		try {
-
-			File file = new File(args[0], "commodity.lst");
-
-			if(file.exists() == false){
-				System.out.println("商品定義ファイルが存在しません");
-				return;
-			}
-
-			br = new BufferedReader(new FileReader(file));
-			String buf = br.readLine();
-			long gold  = 0;
-
-			while (buf != null) {
-				String[] buf2 = buf.split(",", 0);
-
-				//商品コードが英数字8桁以外、または要素数が2つ以外ならエラーを出力する
-				boolean b = Pattern.matches("^"+"[a-zA-Z0-9]"+"{8}$", buf2[0]);
-				if(b == false || buf2.length != 2){
-					System.out.println("商品定義ファイルのフォーマットが不正です");
-					return;
-				}
-
-				//ここまでの間に問題がなければマップに格納していく
-				commodity1.put(buf2[0], buf2[1]);
-				commodity2.put(buf2[0], gold);
-				buf = br.readLine();
-			}
-
-		} catch (FileNotFoundException e) {
-			System.out.println("予期せぬエラーが発生しました");
-			return;
-		} catch (IOException e) {
-			System.out.println("予期せぬエラーが発生しました");
-			return;
-		} finally {
-			if (br != null)
-				try {
-                    br.close();
-                } catch (IOException e) {
-                	System.out.println("予期せぬエラーが発生しました");
-        			return;
-                }
-		}
+		reader(args[0], "branch.lst", br, branch1, branch2);
+		reader(args[0], "commodity.lst", br, commodity1, commodity2);
 
 		//指定フォルダ内にあるアイテムの名前が[数字8桁.rcd]でファイルなら名前を保持する
 		File[] files = new File(args[0]).listFiles();
@@ -239,34 +152,53 @@ public class Sales {
 	                }
 			}
 		}
+		writer(args[0], "branch.out", bw, branch1, branch2);
+		writer(args[0], "commodity.out", bw, commodity1, commodity2);
+	}
 
-		//金額を降順にする
-		List<Map.Entry<String,Long>> entries_b2 = new ArrayList<Map.Entry<String,Long>>(branch2.entrySet());
-		Collections.sort(entries_b2, new Comparator<Map.Entry<String,Long>>() {
 
-	            public int compare(Entry<String,Long> entry1, Entry<String,Long> entry2) {
-	                return ((Long)entry2.getValue()).compareTo((Long)entry1.getValue());
-	            }
-	        });
+	public static void reader(String args, String name, BufferedReader br, HashMap<String, String> map1, HashMap<String, Long> map2){
 
-		//金額を降順にする
-		List<Map.Entry<String,Long>> entries_c2 = new ArrayList<Map.Entry<String,Long>>(commodity2.entrySet());
-		Collections.sort(entries_c2, new Comparator<Map.Entry<String,Long>>() {
-
-	            public int compare(Entry<String,Long> entry1, Entry<String,Long> entry2) {
-	                return ((Long)entry2.getValue()).compareTo((Long)entry1.getValue());
-	            }
-	        });
-
-		//ファイルの書き出し：branch
 		try {
-			File file = new File(args[0], "branch.out");
-			bw = new BufferedWriter(new FileWriter(file));
 
-			for (Entry<String,Long> s : entries_b2) {
-			bw.write(s.getKey()+","+branch1.get(s.getKey())+","+s.getValue());
-			bw.newLine();
+			File file = new File(args, name);
+
+			if(file.exists() == false){
+				System.out.println("支店定義ファイルが存在しません");
+				return;
 			}
+
+			br = new BufferedReader(new FileReader(file));
+			String buf = br.readLine();
+			long gold  = 0;
+
+			while (buf != null) {
+				String[] buf2 = buf.split(",", 0);
+
+				if(name == "branch.lst"){
+				//支店コードが数字3文字以外、または要素数が2つ以外ならエラーを出力する
+				boolean b = Pattern.matches("^\\d{3}$", buf2[0]);
+					if(b == false || buf2.length != 2){
+						System.out.println("支店定義ファイルのフォーマットが不正です");
+						br.close();
+						return;
+					}
+				} else if (name == "commodity.lst") {
+					// 商品コードが英数字8桁以外、または要素数が2つ以外ならエラーを出力する
+					boolean b = Pattern.matches("^" + "[a-zA-Z0-9]" + "{8}$", buf2[0]);
+					if (b == false || buf2.length != 2) {
+						System.out.println("商品定義ファイルのフォーマットが不正です");
+						br.close();
+						return;
+					}
+				}
+
+				//ここまでの間に問題がなければマップに格納する
+				map1.put(buf2[0], buf2[1]);
+				map2.put(buf2[0], gold);
+				buf = br.readLine();
+			}
+			br.close();
 
 		} catch (FileNotFoundException e) {
 			System.out.println("予期せぬエラーが発生しました");
@@ -275,24 +207,36 @@ public class Sales {
 			System.out.println("予期せぬエラーが発生しました");
 			return;
 		} finally {
-			if (bw != null)
+			if (br != null)
 				try {
-                    bw.close();
+                    br.close();
                 } catch (IOException e) {
                 	System.out.println("予期せぬエラーが発生しました");
         			return;
                 }
 		}
+	}
 
-		//ファイルの書き出し：commodity
+	public static void writer(String args, String name, BufferedWriter bw, HashMap<String, String> map1, HashMap<String, Long> map2){
+		//金額を降順にする
+		List<Map.Entry<String,Long>> entries = new ArrayList<Map.Entry<String,Long>>(map2.entrySet());
+		Collections.sort(entries, new Comparator<Map.Entry<String,Long>>() {
+
+	            public int compare(Entry<String,Long> entry1, Entry<String,Long> entry2) {
+	                return ((Long)entry2.getValue()).compareTo((Long)entry1.getValue());
+	            }
+	        });
+
+		//ファイルの書き出し
 		try {
-			File file = new File(args[0], "commodity.out");
+			File file = new File(args,name);//args[0], "branch.out"
 			bw = new BufferedWriter(new FileWriter(file));
 
-			for (Entry<String,Long> s : entries_c2) {
-			bw.write(s.getKey()+","+commodity1.get(s.getKey())+","+s.getValue());
+			for (Entry<String,Long> s : entries) {
+			bw.write(s.getKey()+","+map1.get(s.getKey())+","+s.getValue());
 			bw.newLine();
 			}
+			bw.close();
 
 		} catch (FileNotFoundException e) {
 			System.out.println("予期せぬエラーが発生しました");
@@ -304,10 +248,10 @@ public class Sales {
 			if (bw != null)
 				try {
                     bw.close();
-                } catch (IOException e) {
-                	System.out.println("予期せぬエラーが発生しました");
-        			return;
-                }
+				} catch (IOException e) {
+					System.out.println("予期せぬエラーが発生しました");
+					return;
+				}
 		}
 	}
 }
