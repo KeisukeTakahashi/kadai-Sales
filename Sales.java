@@ -30,8 +30,13 @@ public class Sales {
 			return;
 		}
 
-		reader(args[0], "branch.lst", "^\\d{3}$", branch1, branch2);
-		reader(args[0], "commodity.lst", "^[a-zA-Z0-9]{8}$", commodity1, commodity2);
+		if(!reader(args[0], "branch.lst", "^\\d{3}$", branch1, branch2)) {
+			return;
+		}
+
+		if(!reader(args[0], "commodity.lst", "^[a-zA-Z0-9]{8}$", commodity1, commodity2)) {
+			return;
+		}
 
 		// 指定フォルダ内にあるアイテムの名前が[数字8桁.rcd]でファイルなら名前を保持する
 		File[] files = new File(args[0]).listFiles();
@@ -146,8 +151,13 @@ public class Sales {
 					}
 			}
 		}
-		writer(args[0], "branch.out", branch1, branch2);
-		writer(args[0], "commodity.out", commodity1, commodity2);
+		if(!writer(args[0], "branch.out", branch1, branch2)) {
+			return;
+		}
+
+		if(!writer(args[0], "commodity.out", commodity1, commodity2)) {
+			return;
+		}
 	}
 
 	public static boolean reader(String args, String name, String reg, HashMap<String, String> map1,
